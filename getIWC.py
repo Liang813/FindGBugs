@@ -9,10 +9,9 @@ import pandas as pd
 
 # Enter your Github token
 user_token = [
-    '60298e09a51074cbf6d482f50ad975dbe0121a0f',
-    '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',
-    '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',
-    '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'
+    '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',
+    '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',
+    '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'
 ]
 
 g = Github(user_token[random.randint(0, len(user_token) - 1)])
@@ -48,25 +47,28 @@ def get_relations(repo_issues, repo_name, repo_owner):
                 if issue_event.commit_id is not None:
                     commit_id = issue_event.commit_id
                     commit_ids.append(commit_id)
-            print(commit_ids)
+
             if len(commit_ids) == 1:
+                relation_tup = tuple()
                 commit_info = repo.get_commit(commit_id)
                 commit_message = commit_info.commit.message
-                if '#' in commit_message and str(issue_number) in commit_message:
+                if '#' or 'issue' in commit_message and str(issue_number) in commit_message:
                     # commit_number = re.findall(r"(?<=\#)\d+", commit_message)
                     commit_url = commit_info.html_url
                     relation_tup = (issue_html_url, commit_url)
-                relations.append(relation_tup)
+                    relations.append(relation_tup)
             else:
+                relation_tup = tuple()
                 for cid in commit_ids:
                     commit_info = repo.get_commit(commit_id)
                     commit_message = commit_info.commit.message
-                    if '#' in commit_message and str(issue_number) in commit_message:
+                    if '#' or 'issue' in commit_message and str(issue_number) in commit_message:
                         # commit_number = re.findall(r"(?<=\#)\d+", commit_message)
                         commit_url = commit_info.html_url
                         relation_tup = (issue_html_url, commit_url)
+                        relations.append(relation_tup)
                     break
-                relations.append(relation_tup)
+
     print(relations)
     return relations
 
@@ -76,6 +78,8 @@ if __name__ == '__main__':
     repositories = get_repositories(keywords)
     flag = 0
     for repo in repositories:
+        if repo.fork:
+            continue
         repo_name = repo.name
         repo_name.encode('utf-8', 'ignore')
         print(repo_name)
@@ -85,11 +89,12 @@ if __name__ == '__main__':
         repo_issues = repo.get_issues(state='closed')
         relations_info = []
 
-        try:
-            relations_info = get_relations(repo_issues, repo_name, repo_owner)
-        except Exception as e:
-            sleep(180)
-            g = Github(user_token[random.randint(0, len(user_token) - 1)])
+        # try:
+        #     relations_info = get_relations(repo_issues, repo_name, repo_owner)
+        # except Exception as e:
+        #     sleep(180)
+        #     g = Github(user_token[random.randint(0, len(user_token) - 1)])
+        relations_info = get_relations(repo_issues, repo_name, repo_owner)
 
         if len(relations_info) == 0:
             continue
