@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
-# Obtain the bug information in the form of <issue,commit> of the related library
-import re
+# Get bug information in the form of <issue,commit> for a single library
+
 import random
 from time import sleep
 
@@ -19,13 +19,10 @@ user_token = [
 g = Github(user_token[random.randint(0, len(user_token) - 1)])
 
 
-# calling the search repo API
-def get_repositories(keywords):
-    repositories = g.search_repositories(query=keywords)
-    print('get repositories {}'.format(repositories.totalCount))
-
-    return repositories
-
+def get_one_repo(keywords):
+    repo = g.get_repo(full_name_or_id=keywords)
+    print(repo)
+    return repo
 
 # 遍历issues，获取issue与commit信息
 def get_relations(repo_issues, repo_name, repo_owner):
@@ -79,41 +76,30 @@ def get_relations(repo_issues, repo_name, repo_owner):
 
 if __name__ == '__main__':
     keywords = input('Enter your keywords:')
-    repositories = get_repositories(keywords)
-    flag = 0
-    for repo in repositories:
-        if repo.fork:
-            continue
+    repo = get_one_repo(keywords)
 
-        repo_name = repo.name
-        repo_name.encode('utf-8', 'ignore')
-        print(repo_name)
-        repo_owner = repo.owner.login
-        repo_owner.encode('utf-8', 'ignore')
+    repo_name = repo.name
+    repo_name.encode('utf-8', 'ignore')
+    print(repo_name)
+    repo_owner = repo.owner.login
+    repo_owner.encode('utf-8', 'ignore')
 
-        repo_issues = repo.get_issues(state='closed')
-        relations_info = []
+    repo_issues = repo.get_issues(state='closed')
+    relations_info = []
 
-        try:
-            relations_info = get_relations(repo_issues, repo_name, repo_owner)
-        except github.GithubException:
-            sleep(180)
-            g = Github(user_token[random.randint(0, len(user_token) - 1)])
+    try:
+        relations_info = get_relations(repo_issues, repo_name, repo_owner)
+    except github.GithubException:
+        sleep(180)
+        g = Github(user_token[random.randint(0, len(user_token) - 1)])
+    keyword = keywords.replace('/', '_')
 
-        if len(relations_info) == 0:
-            continue
+    fileName = 'relations_of_' + str(keyword) + '.csv'
+    data = pd.DataFrame(relations_info)
+    try:
+        csv_headers = ['issue_url', 'commit_url']
+        data.to_csv(fileName, header=csv_headers, index=False,
+                        mode='a+', encoding='utf-8-sig')
 
-        fileName = 'relations_of_' + keywords + '.csv'
-        data = pd.DataFrame(relations_info)
-        try:
-            if flag == 0:
-                csv_headers = ['issue_url', 'commit_url']
-                data.to_csv(fileName, header=csv_headers, index=False,
-                            mode='a+', encoding='utf-8-sig')
-
-            else:
-                data.to_csv(fileName, header=False, index=False,
-                            mode='a+', encoding='utf-8-sig')
-            flag += 1
-        except UnicodeEncodeError:
-            print('Encode error drop the data')
+    except UnicodeEncodeError:
+        print('Encode error drop the data')
