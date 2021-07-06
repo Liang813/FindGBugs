@@ -51,21 +51,24 @@ def get_relations(repo_issues, repo_name, repo_owner):
                 relation_tup = tuple()
                 commit_info = repo.get_commit(commit_id)
                 commit_message = commit_info.commit.message
-                if '#' or 'issue' in commit_message and str(issue_number) in commit_message:
-                    # commit_number = re.findall(r"(?<=\#)\d+", commit_message)
-                    commit_url = commit_info.html_url
-                    relation_tup = (issue_html_url, commit_url)
-                    relations.append(relation_tup)
+
+                if '#' or 'issue' in commit_message:
+                    if str(issue_number) in commit_message:
+                        # commit_number = re.findall(r"(?<=\#)\d+", commit_message)
+                        commit_url = commit_info.html_url
+                        relation_tup = (issue_html_url, commit_url)
+                        relations.append(relation_tup)
             elif len(commit_ids) > 1:
                 relation_tup = tuple()
                 for cid in commit_ids:
                     commit_info = repo.get_commit(commit_id)
                     commit_message = commit_info.commit.message
-                    if '#' or 'issue' in commit_message and str(issue_number) in commit_message:
-                        # commit_number = re.findall(r"(?<=\#)\d+", commit_message)
-                        commit_url = commit_info.html_url
-                        relation_tup = (issue_html_url, commit_url)
-                        relations.append(relation_tup)
+                    if '#' or 'issue' in commit_message:
+                        if str(issue_number) in commit_message:
+                            # commit_number = re.findall(r"(?<=\#)\d+", commit_message)
+                            commit_url = commit_info.html_url
+                            relation_tup = (issue_html_url, commit_url)
+                            relations.append(relation_tup)
                     break
             else:
                 continue
