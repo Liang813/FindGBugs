@@ -1,6 +1,8 @@
 import ast
 from collections import Counter
-import astpretty
+from difflib import unified_diff
+# import astpretty
+from edit_distance.Pattern import pattern_match
 from edit_distance.get_update_files_info import get_file_content
 
 
@@ -59,7 +61,7 @@ def get_node_number(node_list):
     return node_tuple
 
 
-def get_two_ast():
+def two_ast_nodes():
     """
 
     :return: fix前后语法树节点的差值
@@ -89,25 +91,45 @@ def get_two_ast():
     return node_number_list
 
 
+def diff_two_ast():
+    """
+        fix前后两颗语法树str级别的差异
+    :return:
+    """
+    node_number_list = []
+    two_file_content = get_file_content()
+    for info in two_file_content:
+        # 获取两个commit对应的修改的文件内容
+        str_pre = info[2]
+        str_now = info[3]
+        # 根据内容构建语法树
+        str_pre_tree = ast.dump(ast.parse(str_pre))
+        str_now_tree = ast.dump(ast.parse(str_now))
+        # 计算两颗语法树的字符串差异并获取差异
+        diff = unified_diff(str_pre_tree, str_now_tree, lineterm='', )
+        diff_buggy = ""
+        diff_fix = ""
+        for i in diff:
+            if len(i) <= 2:
+                if i.startswith("-"):
+                    a = i.replace("-", "")
+                    diff_buggy += a
+                elif i.startswith("+"):
+                    a = i.replace("+", "")
+                    diff_fix += a
+                else:
+                    a = i.replace(" ", "")
+                    diff_buggy += a
+                    diff_fix += a
+        # print(diff_buggy)
+        # print(diff_fix)
+        # 调用规则匹配方法，传入参数diff_buggy与diff_fix，基于规则的匹配
+        buggy_type = pattern_match(diff_buggy, diff_fix)
+        if buggy_type == 'API misuse':
+            print("True!")
+
+
 if __name__ == '__main__':
-    node_numbers = get_two_ast()
-    # str1 = '(a+b)*c'
-    # str2 = '(a+b)*(c+1)'
-    # # 显示原树
-    # str1_tree = ast.dump(ast.parse(str1))
-    # # ast生成的普通的树的形式
-    # print(str1_tree)
-    # str2_tree = ast.dump(ast.parse(str2))
+    # node_numbers = get_two_ast()
+    diff_two_ast()
 
-    # 使用astpretty工具，更好的显示AST结构
-    # astpretty.pprint(ast.parse(str1))
-
-    # 使用广度优先遍历树，并为每个节点设置一个parent属性，用于寻找节点的父节点
-    # for node in ast.walk(ast.parse(str1)):
-    #     for child in ast.iter_child_nodes(node):
-    #         print(ast.dump(child))
-    #         child.parent = node
-
-    # 深度优先遍历树
-    # astVisitor = ASTVisitor()
-    # astVisitor.visit(ast.parse(str1))

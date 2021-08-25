@@ -21,6 +21,32 @@ def read_csv():
     return repo_info_list
 
 
+def get_diff_str():
+    """
+        使用github提供的diff方法直接获取到修改的字符串
+    :return:全部bug修改的字符串集合
+    """
+    results = []
+    repo_info_list = read_csv()
+    for repo_info in repo_info_list:
+        repo_name = repo_info[0]
+        repo_name_str = ''.join(repo_name)  # repo名
+        fix_commit = repo_info[1]
+        fix_commit_str = ''.join(fix_commit)  # fix commitId
+        cmd1 = "cd .."
+        cmd2 = "cd D:\\repo_clone\\" + repo_name_str  # clone的库的存放地址
+        cmd3 = "git diff " + fix_commit_str + " " + fix_commit_str + "~1:"  # git diff命令
+        cmd = cmd1 + " && " + cmd2 + " && " + cmd3
+        d = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
+        out = d.stdout.readlines()
+        result = ""
+        for line in out:
+            line_str = str(line, encoding="utf-8")
+            result = result + line_str
+        results.append(result)
+    return results
+
+
 def get_file_content():
     """
     获取修改前后的文件内容
@@ -42,7 +68,7 @@ def get_file_content():
 
         # 获取修改文件名
         cmd1 = "cd .."  # cmd1 = "cd ../"
-        cmd2 = "cd D:\\repo_clone\\" + repo_name_str
+        cmd2 = "cd D:\\repo_clone\\" + repo_name_str         # clone的库的存放地址
         cmd3 = "git show --pretty="" --name-only " + fix_commit_str  # 查看指定commit的修改文件，面向用户的命令
         cmd = cmd1 + " && " + cmd2 + " && " + cmd3
         # 存放修改的文件名的数组
@@ -54,7 +80,6 @@ def get_file_content():
             line_str = str(line, encoding="utf-8")
             if '.py' in line_str and 'test' not in line_str:
                 update_files.append(line_str)
-                print(update_files)
         # 获取修改文件不为空的Bug信息，可以考虑去掉存储在update_files中，上面直接判断，然后遍历时直接获取文件信息
         if not update_files:
             continue
