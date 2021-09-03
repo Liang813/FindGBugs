@@ -1,45 +1,47 @@
+# -*-coding:GBK -*-
 import ast
 from collections import Counter
 from difflib import unified_diff
-# import astpretty
+import astpretty
 from edit_distance.Pattern import pattern_match
 from edit_distance.get_update_files_info import get_file_content
 
 
 class ASTVisitor(ast.NodeVisitor):
     """
-    æ·±åº¦ä¼˜å…ˆéå†æ ‘å‡½æ•°
+    Éî¶ÈÓÅÏÈ±éÀúÊ÷º¯Êı
     """
-    # è‹¥æ˜¯æƒ³è¦çš„åªæ˜¯"æ¨¡å—"ä¸­çš„ä¸€ç»„åç§°ï¼Œå¯ä»¥ä¸ç”¨è¦†ç›–generic_visitï¼Œæ­¤å¤„ä½¿ç”¨generic_visitè·å–å…¨éƒ¨çš„èŠ‚ç‚¹
+
+    # ÈôÊÇÏëÒªµÄÖ»ÊÇ"Ä£¿é"ÖĞµÄÒ»×éÃû³Æ£¬¿ÉÒÔ²»ÓÃ¸²¸Çgeneric_visit£¬´Ë´¦Ê¹ÓÃgeneric_visit»ñÈ¡È«²¿µÄ½Úµã
     def generic_visit(self, node):
-        # å­˜å‚¨æ‰€æœ‰èŠ‚ç‚¹
+        # ´æ´¢ËùÓĞ½Úµã
         tree_nodes = [type(node).__name__]
         ast.NodeVisitor.generic_visit(self, node)
         return tree_nodes
 
-    # def visit_FunctionDef(self, node):
+        # def visit_FunctionDef(self, node):
         print(type(node).__name__)
         ast.NodeVisitor.generic_visit(self, node)
 
-    # å‡è®¾ä¸éœ€è¦LoadèŠ‚ç‚¹
-    # def visit_Load(self, node): pass
+        # ¼ÙÉè²»ĞèÒªLoad½Úµã
+        # def visit_Load(self, node): pass
 
-    # def visit_Load(self, node):
+        # def visit_Load(self, node):
         print(type(node).__name__)
         ast.NodeVisitor.generic_visit(self, node)
 
-    # æ˜¾ç¤ºNameèŠ‚ç‚¹çš„å®é™…åç§°
+    # ÏÔÊ¾Name½ÚµãµÄÊµ¼ÊÃû³Æ
     def visit_Name(self, node):
         print('Name: ', node.id)
 
 
 def ast_walk(str1):
     """
-    å¹¿åº¦ä¼˜å…ˆéå†æ ‘èŠ‚ç‚¹ï¼Œç„¶åå°†èŠ‚ç‚¹å­˜å‚¨åˆ°ä¸€ä¸ªæ•°ç»„ä¸­è¿”å›
+    ¹ã¶ÈÓÅÏÈ±éÀúÊ÷½Úµã£¬È»ºó½«½Úµã´æ´¢µ½Ò»¸öÊı×éÖĞ·µ»Ø
     :param str1:
     :return: nums[]
     """
-    # å­˜å‚¨æ ‘èŠ‚ç‚¹çš„é›†åˆ
+    # ´æ´¢Ê÷½ÚµãµÄ¼¯ºÏ
     tree_nodes = []
     for node in ast.walk(ast.parse(str1)):
         tree_nodes.append(type(node).__name__)
@@ -49,7 +51,7 @@ def ast_walk(str1):
 
 def get_node_number(node_list):
     """
-    ä½¿ç”¨python collectionsè‡ªå¸¦çš„Counterå‡½æ•°è®¡ç®—æ¯ä¸ªèŠ‚ç‚¹å‡ºç°çš„æ¬¡æ•°
+    Ê¹ÓÃpython collections×Ô´øµÄCounterº¯Êı¼ÆËãÃ¿¸ö½Úµã³öÏÖµÄ´ÎÊı
     :param node_list:
     :return: node_tuple
     """
@@ -64,27 +66,27 @@ def get_node_number(node_list):
 def two_ast_nodes():
     """
 
-    :return: fixå‰åè¯­æ³•æ ‘èŠ‚ç‚¹çš„å·®å€¼
+    :return: fixÇ°ºóÓï·¨Ê÷½ÚµãµÄ²îÖµ
     """
     node_number_list = []
     two_file_content = get_file_content()
     for info in two_file_content:
-        # è·å–ä¸¤ä¸ªcommitå¯¹åº”çš„ä¿®æ”¹çš„æ–‡ä»¶å†…å®¹
+        # »ñÈ¡Á½¸öcommit¶ÔÓ¦µÄĞŞ¸ÄµÄÎÄ¼şÄÚÈİ
         str_pre = info[2]
         str_now = info[3]
-        # æ ¹æ®å†…å®¹æ„å»ºè¯­æ³•æ ‘
+        # ¸ù¾İÄÚÈİ¹¹½¨Óï·¨Ê÷
         str_pre_tree = ast.dump(ast.parse(str_pre))
         str_now_tree = ast.dump(ast.parse(str_now))
 
-        # åˆ†åˆ«è°ƒç”¨å¹¿åº¦ä¼˜å…ˆéå†æ ‘ï¼Œç„¶ååˆ†åˆ«è·å–èŠ‚ç‚¹å€¼
+        # ·Ö±ğµ÷ÓÃ¹ã¶ÈÓÅÏÈ±éÀúÊ÷£¬È»ºó·Ö±ğ»ñÈ¡½ÚµãÖµ
         node_list_pre = ast_walk(str_pre_tree)
         node_list_now = ast_walk(str_now_tree)
-        # è·å–å„ä¸ªèŠ‚ç‚¹æ•°é‡
+        # »ñÈ¡¸÷¸ö½ÚµãÊıÁ¿
         node_tuple_pre = get_node_number(node_list_pre)
         print(node_tuple_pre)
         node_tuple_now = get_node_number(node_list_now)
         print(node_tuple_now)
-        # è®¡ç®—ç›¸å·®çš„èŠ‚ç‚¹æ•°é‡
+        # ¼ÆËãÏà²îµÄ½ÚµãÊıÁ¿
         node_tuple_now.subtract(node_tuple_pre)
         print(node_tuple_now)
         node_number_list.append(node_tuple_now)
@@ -93,19 +95,20 @@ def two_ast_nodes():
 
 def diff_two_ast():
     """
-        fixå‰åä¸¤é¢—è¯­æ³•æ ‘strçº§åˆ«çš„å·®å¼‚
+        »ñÈ¡fixÇ°ºóÁ½¿ÅÓï·¨Ê÷str¼¶±ğµÄ²îÒì£¬²¢µ÷ÓÃ»ùÓÚ¹æÔòÆ¥Åäº¯ÊıÅĞ¶Ï Bug µÄÀà±ğ
     :return:
     """
     node_number_list = []
+    general_bugs = []
     two_file_content = get_file_content()
     for info in two_file_content:
-        # è·å–ä¸¤ä¸ªcommitå¯¹åº”çš„ä¿®æ”¹çš„æ–‡ä»¶å†…å®¹
+        # »ñÈ¡Á½¸öcommit¶ÔÓ¦µÄĞŞ¸ÄµÄÎÄ¼şÄÚÈİ
         str_pre = info[2]
         str_now = info[3]
-        # æ ¹æ®å†…å®¹æ„å»ºè¯­æ³•æ ‘
+        # ¸ù¾İÄÚÈİ¹¹½¨Óï·¨Ê÷
         str_pre_tree = ast.dump(ast.parse(str_pre))
         str_now_tree = ast.dump(ast.parse(str_now))
-        # è®¡ç®—ä¸¤é¢—è¯­æ³•æ ‘çš„å­—ç¬¦ä¸²å·®å¼‚å¹¶è·å–å·®å¼‚
+        # ¼ÆËãÁ½¿ÅÓï·¨Ê÷µÄ×Ö·û´®²îÒì²¢»ñÈ¡²îÒì
         diff = unified_diff(str_pre_tree, str_now_tree, lineterm='', )
         diff_buggy = ""
         diff_fix = ""
@@ -121,15 +124,18 @@ def diff_two_ast():
                     a = i.replace(" ", "")
                     diff_buggy += a
                     diff_fix += a
-        # print(diff_buggy)
-        # print(diff_fix)
-        # è°ƒç”¨è§„åˆ™åŒ¹é…æ–¹æ³•ï¼Œä¼ å…¥å‚æ•°diff_buggyä¸diff_fixï¼ŒåŸºäºè§„åˆ™çš„åŒ¹é…
-        buggy_type = pattern_match(diff_buggy, diff_fix)
-        if buggy_type == 'API misuse':
-            print("True!")
+        print(diff_buggy)
+        print(diff_fix)
+        # µ÷ÓÃ¹æÔòÆ¥Åä·½·¨£¬´«Èë²ÎÊıdiff_buggyÓëdiff_fix£¬»ùÓÚ¹æÔòµÄÆ¥Åä
+        buggy_types = pattern_match(diff_buggy, diff_fix)
+        repo_name = info[0]
+        commit_url = info[4]
+        general_bug = [repo_name, commit_url, buggy_types]
+        general_bugs.append(general_bug)
+    return general_bugs
 
 
 if __name__ == '__main__':
     # node_numbers = get_two_ast()
-    diff_two_ast()
-
+    general_bugs = diff_two_ast()
+    print(general_bugs)

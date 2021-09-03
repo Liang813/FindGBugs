@@ -1,4 +1,4 @@
-# coding=gbk
+# -*-coding:GBK -*-
 import re
 import csv
 import subprocess
@@ -15,7 +15,7 @@ def read_csv():
         for line in lines:
             repo_name = re.findall(".*com/(.*)/commit.*", line[1])
             commit_id = re.findall(r"(?<=commit/).+", line[1])
-            repo_name_sha = [repo_name, commit_id]
+            repo_name_sha = [repo_name, commit_id, line[1]]
             repo_info_list.append(repo_name_sha)
 
     return repo_info_list
@@ -65,6 +65,8 @@ def get_file_content():
         repo_name_str = ''.join(repo_name)  # repo名
         fix_commit = repo_info[1]
         fix_commit_str = ''.join(fix_commit)  # fix commitId
+        commit_url = repo_info[2]
+        commit_url_str = ''.join(commit_url)  # fix commit url
 
         # 获取修改文件名
         cmd1 = "cd .."  # cmd1 = "cd ../"
@@ -102,7 +104,7 @@ def get_file_content():
             for line_pre in out_pre:
                 line_str_pre = str(line_pre, encoding="utf-8")
                 pre_files_str += line_str_pre
-        two_version_files = [repo_name_str, fix_commit_str, pre_files_str, now_files_str]
+        two_version_files = [repo_name_str, fix_commit_str, pre_files_str, now_files_str, commit_url_str]
         two_version_infos.append(two_version_files)
 
     return two_version_infos

@@ -41,9 +41,9 @@ def get_node_number(node_list):
 
 if __name__ == '__main__':
     # fix前
-    str1 = ""
+    str1 = "all_toks = all_toks + (attr_value if isinstance(attr_value, (list, tuple)) else [attr_value])"
     # fix后
-    str2 = "self.val_check_batch = max(1, self.val_check_batch)"
+    str2 = "all_toks = all_toks + (list(attr_value) if isinstance(attr_value, (list, tuple)) else [attr_value])"
     # 显示原树
     str1_tree = ast.dump(ast.parse(str1))
     str2_tree = ast.dump(ast.parse(str2))
