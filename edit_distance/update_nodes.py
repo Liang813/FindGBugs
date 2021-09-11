@@ -124,8 +124,12 @@ def diff_two_ast():
                     a = i.replace(" ", "")
                     diff_buggy += a
                     diff_fix += a
-        print(diff_buggy)
-        print(diff_fix)
+        print(info[0])
+        try:
+            print(diff_buggy)
+            print(diff_fix)
+        except Exception as e:
+            print("编码风格不符！")
         # 调用规则匹配方法，传入参数diff_buggy与diff_fix，基于规则的匹配
         buggy_types = pattern_match(diff_buggy, diff_fix)
         repo_name = info[0]
