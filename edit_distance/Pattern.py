@@ -10,8 +10,6 @@ def pattern_match(str1, str2):
     is_judge = judge_pattern(diff_buggy, diff_fix)
     is_var = var_pattern(diff_buggy, diff_fix)
     result = []
-    if is_api is not None:
-        result.append(is_api)
     if is_ips is not None:
         result.append(is_ips)
     if is_tp is not None:
@@ -24,6 +22,9 @@ def pattern_match(str1, str2):
         result.append(is_judge)
     if is_var is not None:
         result.append(is_var)
+    if len(result) == 0:
+        if is_api is not None:
+            result.append(is_api)
     return result
 
 
@@ -44,7 +45,7 @@ def api_pattern(str1, str2):
     if 'keyword' in str1 and 'keyword' in str2:
         location_buggy = str1.find('keyword')
         location_fix = str2.find('keyword')
-        if location_buggy == location_fix:
+        if location_buggy != location_fix:
             return 'API misuse'
 
 
@@ -54,23 +55,31 @@ def api_pattern(str1, str2):
 
 
 def ips_pattern(str1, str2):
-    if ("attr='clip_by_value'" not in str1 and "attr='clip_by_value'" in str2) or (
-            'clip_by_value' not in str1 and 'clip_by_value' in str2):
+    str1_clip = str1.count("attr='clip_by_value'")
+    str2_clip = str2.count("attr='clip_by_value'")
+    if str1_clip != str2_clip:
         return 'IPS'
-    if ("attr='reduce_mean'" not in str1 and "attr='reduce_mean'" in str2) or (
-            'reduce_mean' not in str1 and 'reduce_mean' in str2):
+    str1_reduce = str1.count("attr='reduce_mean'")
+    str2_reduce = str2.count("attr='reduce_mean'")
+    if str2_reduce != str1_reduce:
         return 'IPS'
-    if (
-            "attr='softmax_cross_entropy_with_logits'" not in str1 and "attr='softmax_cross_entropy_with_logits'" in str2) or (
-            'softmax_cross_entropy_with_logits' not in str1 and 'softmax_cross_entropy_with_logits' in str2):
+    str1_cross = str1.count("attr='softmax_cross_entropy_with_logits'")
+    str2_cross = str2.count("attr='softmax_cross_entropy_with_logits'")
+    if str1_cross != str2_cross:
         return 'IPS'
-    if 'op=Div()' not in str1 and 'op=Div()' in str2:  # 是否需要判断learning rate以区分除零运算
+    if 'op=Div()' not in str1 and 'op=Div()' in str2:
         return 'IPS'
     if ("attr='softmax'" not in str1) and ("attr='nn'" and "attr='softmax'" in str2):
         return 'IPS'
-    if ('StandardSca' not in str1 and 'StandardSca' in str2) or (
-            'StandardSca' in str1 and 'StandardSca' not in str2) or (
-            'MinMaxSca' not in str1 and 'MinMaxSca' in str2) or ('MinMaxSca' in str1 and 'MinMaxSca' not in str2):
+    str1_softmax = str1.count("attr='softmax'")
+    str2_softmax = str2.count("attr='softmax'")
+    if str1_softmax != str2_softmax:
+        return 'IPS'
+    str1_standard = str1.count('StandardSca')
+    str2_standard = str2.count('StandardSca')
+    str1_minmax = str1.count('MinMaxSca')
+    str2_minmax = str2.count('MinMaxSca')
+    if str1_standard != str2_standard or str1_minmax != str2_minmax:
         return 'IPS'
 
 
@@ -82,9 +91,21 @@ def ips_pattern(str1, str2):
 def tp_pattern(str1, str2):
     if "attr='dtype'" not in str1 and "attr='dtype'" in str2:
         return 'type mismatch'
-    if "id='int'" not in str1 and "id='int'" in str2:
+    str1_int = str1.count("id='int'")
+    str2_int = str2.count("id='int'")
+    if str1_int != str2_int:
         return 'type mismatch'
-    if "id='float'" not in str1 and "id='float'" in str2:
+    str1_float32 = str1.count('float32')
+    str2_float32 = str2.count('float32')
+    str1_float16 = str1.count('float16')
+    str2_float16 = str2.count('float16')
+    if str1_float32 != str2_float32:
+        return 'type mismatch'
+    if str1_float16 != str2_float16:
+        return 'type mismatch'
+    str1_float = str1.count("id='float'")
+    str2_float = str2.count("id='float'")
+    if str1_float != str2_float:
         return 'type mismatch'
     if "id='list'" not in str1 and "id='list'" in str2:
         return 'type mismatch'
@@ -119,6 +140,10 @@ def shp_pattern(str1, str2):
     if ("attr='squeeze'" not in str1 and "attr='squeeze'" in str2) or (
             "attr='squeeze'" in str1 and "attr='squeeze'" not in str2):
         return 'shape mismatch'
+    str1_squeeze = str1.count("attr='squeeze'")
+    str2_squeeze = str2.count("attr='squeeze'")
+    if str1_squeeze != str2_squeeze:
+        return 'shape mismatch'
 
 
 """
@@ -127,8 +152,7 @@ def shp_pattern(str1, str2):
 
 
 def judge_pattern(str1, str2):
-    if ('ops=[Is()]' and 'NameConstant(value=None)' not in str1) and (
-            'ops=[Is()]' and 'NameConstant(value=None)' in str2):
+    if 'ops=[Is()]' not in str1 and 'None' not in str1 and 'ops=[Is()]' in str2 and 'None' in str2:
         return 'add judge'
 
 
@@ -138,7 +162,7 @@ def judge_pattern(str1, str2):
 
 
 def var_pattern(str1, str2):
-    if "attr = 'initialize_all_variables'" not in str1 and "attr = 'initialize_all_variables'" in str2:
+    if "attr='initialize_all_variables'" not in str1 and "attr='initialize_all_variables'" in str2:
         return 'variable initialization'
-    if "attr = 'initialize_all_variables'" in str1 and ("attr='group'" and "attr='initialize_local_variables'" in str2):
+    if (('group' and "attr='initialize_local_variables'" not in str1) and ('group' and "attr='initialize_local_variables'" in str2)) or (('group' and "attr='initialize_local_variables'" not in str2) and ('group' and "attr='initialize_local_variables'" in str1)):
         return 'variable initialization'

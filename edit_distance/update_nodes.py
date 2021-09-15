@@ -2,7 +2,6 @@
 import ast
 from collections import Counter
 from difflib import unified_diff
-import astpretty
 from edit_distance.Pattern import pattern_match
 from edit_distance.get_update_files_info import get_file_content
 
@@ -106,8 +105,13 @@ def diff_two_ast():
         str_pre = info[2]
         str_now = info[3]
         # 根据内容构建语法树
-        str_pre_tree = ast.dump(ast.parse(str_pre))
-        str_now_tree = ast.dump(ast.parse(str_now))
+        str_pre_tree = ""
+        str_now_tree = ""
+        try:
+            str_pre_tree = ast.dump(ast.parse(str_pre))
+            str_now_tree = ast.dump(ast.parse(str_now))
+        except Exception as e:
+            print(e)
         # 计算两颗语法树的字符串差异并获取差异
         diff = unified_diff(str_pre_tree, str_now_tree, lineterm='', )
         diff_buggy = ""
@@ -143,3 +147,5 @@ if __name__ == '__main__':
     # node_numbers = get_two_ast()
     general_bugs = diff_two_ast()
     print(general_bugs)
+    print("Bug数量为:")
+    print(len(general_bugs))

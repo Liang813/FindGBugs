@@ -15,12 +15,12 @@ def read_csv():
         for line in lines:
             if 'pull' in line[1]:
                 repo_name = re.findall(".*com/(.*)/pull.*", line[1])
+                commit_id = re.findall(r"(?<=commits/).+", line[1])
             else:
                 repo_name = re.findall(".*com/(.*)/commit.*", line[1])
-            commit_id = re.findall(r"(?<=commit/).+", line[1])
+                commit_id = re.findall(r"(?<=commit/).+", line[1])
             repo_name_sha = [repo_name, commit_id, line[1]]
             repo_info_list.append(repo_name_sha)
-
     return repo_info_list
 
 
@@ -74,6 +74,8 @@ def get_file_content():
         # 获取修改文件名
         cmd1 = "cd .."  # cmd1 = "cd ../"
         cmd2 = "cd D:\\repo_clone\\" + repo_name_str         # clone的库的存放地址
+        print("fix_commit:")
+        print(fix_commit_str)
         cmd3 = "git show --pretty="" --name-only " + fix_commit_str  # 查看指定commit的修改文件，面向用户的命令
         cmd = cmd1 + " && " + cmd2 + " && " + cmd3
         # 存放修改的文件名的数组
@@ -88,7 +90,8 @@ def get_file_content():
         # 获取修改文件不为空的Bug信息，可以考虑去掉存储在update_files中，上面直接判断，然后遍历时直接获取文件信息
         if not update_files:
             continue
-        # print(update_files)
+        print("修改的文件名:")
+        print(update_files)
         # print("=============================")
 
         # git show 命令获取修改的文件内容
