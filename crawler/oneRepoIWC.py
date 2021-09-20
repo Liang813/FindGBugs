@@ -69,7 +69,7 @@ def get_relations(repo_issues, repo_name, repo_owner):
                             commit_url = commit_info.html_url
                             relation_tup = (issue_html_url, commit_url)
                             relations.append(relation_tup)
-                    break
+                            break
             else:
                 continue
 
