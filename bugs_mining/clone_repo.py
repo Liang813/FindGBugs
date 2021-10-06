@@ -9,7 +9,7 @@ def read_csv():
     读取csv文件,以[repo_name, commit_id]的形式存入repo_info_list列表中
     :return: nums[]
     """
-    with open('../crawler/relations_of_pytorch.csv', 'r') as data:
+    with open('../bugs_crawler/relations_of_pytorch.csv', 'r') as data:
         lines = csv.reader(data)
         repo_info_list = []
         for line in lines:

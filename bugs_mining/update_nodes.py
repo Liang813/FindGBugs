@@ -2,8 +2,8 @@
 import ast
 from collections import Counter
 from difflib import unified_diff
-from edit_distance.Pattern import pattern_match
-from edit_distance.get_update_files_info import get_file_content
+from bugs_mining.Pattern import pattern_match
+from bugs_mining.get_update_files_info import get_file_content
 
 
 class ASTVisitor(ast.NodeVisitor):
