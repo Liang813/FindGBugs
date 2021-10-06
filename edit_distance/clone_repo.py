@@ -15,12 +15,12 @@ def read_csv():
         for line in lines:
             if 'pull' in line[1]:
                 repo_name = re.findall(".*com/(.*)/pull.*", line[1])
+                commit_id = re.findall(r"(?<=commits/).+", line[1])
             else:
                 repo_name = re.findall(".*com/(.*)/commit.*", line[1])
-            commit_id = re.findall(r"(?<=commit/).+", line[1])
-            repo_name_sha = [repo_name, commit_id]
+                commit_id = re.findall(r"(?<=commit/).+", line[1])
+            repo_name_sha = [repo_name, commit_id, line[1]]
             repo_info_list.append(repo_name_sha)
-
     return repo_info_list
 
 

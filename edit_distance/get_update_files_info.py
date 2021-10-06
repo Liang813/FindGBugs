@@ -67,6 +67,7 @@ def get_file_content():
         repo_name = repo_info[0]
         repo_name_str = ''.join(repo_name)  # repo名
         fix_commit = repo_info[1]
+        print(fix_commit)        ### 读到的fix_commit为空
         fix_commit_str = ''.join(fix_commit)  # fix commitId
         commit_url = repo_info[2]
         commit_url_str = ''.join(commit_url)  # fix commit url

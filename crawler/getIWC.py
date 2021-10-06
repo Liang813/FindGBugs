@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 # Obtain the bug information in the form of <issue,commit> of the related library
+# Search by keyword
 import re
 import random
 import time
@@ -11,9 +12,9 @@ import pandas as pd
 
 # Enter your Github token
 user_token = [
-    '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',
-    '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',
-    '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'
+    'token1',
+    'token2',
+    'token3'
 ]
 
 g = Github(user_token[random.randint(0, len(user_token) - 1)])

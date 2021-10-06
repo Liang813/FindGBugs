@@ -135,7 +135,7 @@ def diff_two_ast():
         except Exception as e:
             print("编码风格不符！")
         # 调用规则匹配方法，传入参数diff_buggy与diff_fix，基于规则的匹配
-        buggy_types = pattern_match(diff_buggy, diff_fix)
+        buggy_types = pattern_match(diff_buggy, diff_fix, str_pre_tree)
         repo_name = info[0]
         commit_url = info[4]
         general_bug = [repo_name, commit_url, buggy_types]
@@ -146,6 +146,9 @@ def diff_two_ast():
 if __name__ == '__main__':
     # node_numbers = get_two_ast()
     general_bugs = diff_two_ast()
-    print(general_bugs)
+    # print(general_bugs)
+    for general_bug in general_bugs:
+        if len(general_bug[2]) != 0:
+            print(general_bug)
     print("Bug数量为:")
     print(len(general_bugs))

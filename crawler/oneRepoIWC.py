@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # Get bug information in the form of <issue,commit> for a single library
-
+# Provide a list with the names of the bug libraries
 import random
 import time
 from time import sleep
@@ -11,9 +11,9 @@ import pandas as pd
 
 # Enter your Github token
 user_token = [
-    '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',
-    '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',
-    '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'
+    'token1',
+    'token2',
+    'token3'
 ]
 
 g = Github(user_token[random.randint(0, len(user_token) - 1)])
@@ -81,8 +81,10 @@ if __name__ == '__main__':
     # keywords = input('Enter your keywords:')
     print(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()))
     # 批量爬虫
-    kws = ['llmhyy/defects4dl','arogozhnikov/einops']
-
+    kws = ['heliumsea/QANet-pytorch', 'wuyifan18/DeepLog', 'jvanvugt/pytorch-unet', 'avinashpaliwal/Super-SloMo', 'sniklaus/pytorch-hed', 'jvanvugt/pytorch-unet', 'MontaEllis/Pytorch-Medical-Segmentation', 'nyoki-mtl/pytorch-segmentation', 'kevinzakka/pytorch-goodies', 'aymericdamien/TopDeepLearning', 'Cyanogenoid/pytorch-vqa',
+           'ZhixiuYe/HSCRF-pytorch', 'd-li14/mobilenetv3.pytorch', 'vahidk/tfrecord', 'DayBreak-u/Thundernet_Pytorch', 'caogang/wgan-gp', 'havakv/pycox', 'akanimax/pro_gan_pytorch', 'YBIGTA/pytorch-hair-segmentation', 'pranz24/pytorch-soft-actor-critic', 'quancore/social-lstm', 'huanghoujing/AlignedReID-Re-Production-Pytorch',
+           'Wizaron/instance-segmentation-pytorch', 'facebookresearch/XLM', 'rwightman/posenet-pytorch', 'songdejia/Siamese-RPN-pytorch', 'eladhoffer/seq2seq.pytorch', 'davidtvs/PyTorch-ENet', 'chenjun2hao/Attention_ocr.pytorch', 'qqueing/DeepSpeaker-pytorch', 'facebookresearch/maskrcnn-benchmark', 'yatengLG/Retinanet-Pytorch',
+           'AnTao97/dgcnn.pytorch', 'StrangerZhang/SiamFC-PyTorch', 'aitorzip/PyTorch-SRGAN', 'junyuseu/pytorch-cifar-models', 'heykeetae/Self-Attention-GAN', 'deepsound-project/samplernn-pytorch', 'truskovskiyk/nima.pytorch', 'ignacio-rocco/cnngeometric_pytorch', 'princewang1994/TextSnake.pytorch', 'GuYuc/WS-DAN.PyTorch', 'pytorch/hub']
     for i in kws:
         repo = get_one_repo(i)
 
@@ -108,8 +110,8 @@ if __name__ == '__main__':
             fileName = 'relations_of_' + 'pytorch' + '.csv'
             data = pd.DataFrame(relations_info)
             try:
-                csv_headers = ['issue_url', 'commit_url']
-                data.to_csv(fileName, header=csv_headers, index=False,
+                # csv_headers = ['issue_url', 'commit_url']
+                data.to_csv(fileName, header=False, index=False,
                                 mode='a+', encoding='utf-8-sig')
 
             except UnicodeEncodeError:
