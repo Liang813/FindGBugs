@@ -3,7 +3,7 @@ import ast
 from collections import Counter
 from difflib import unified_diff
 from bugs_mining.Pattern import pattern_match
-from bugs_mining.get_update_files_info import get_file_content
+from bugs_mining.get_update_files_info import read_csv, get_file_content
 
 
 class ASTVisitor(ast.NodeVisitor):
@@ -95,15 +95,23 @@ def two_ast_nodes():
 def diff_two_ast():
     """
         获取fix前后两颗语法树str级别的差异，并调用基于规则匹配函数判断 Bug 的类别
-    :return:
+    :return: List[List[Union[str, List[str]]]]
     """
-    node_number_list = []
+    repo_info_list = read_csv()
     general_bugs = []
-    two_file_content = get_file_content()
-    for info in two_file_content:
+    for repo_info in repo_info_list:
+        # 分别获取repo库名和commitId
+        repo_name = repo_info[0]
+        repo_name_str = ''.join(repo_name)  # repo名
+        fix_commit = repo_info[1]
+        print(fix_commit)  # 读到的fix_commit为空
+        fix_commit_str = ''.join(fix_commit)  # fix commitId
+        commit_url = repo_info[2]
+        commit_url_str = ''.join(commit_url)  # fix commit url
+        two_file_content = get_file_content(repo_name_str, fix_commit_str, commit_url_str)
         # 获取两个commit对应的修改的文件内容
-        str_pre = info[2]
-        str_now = info[3]
+        str_pre = two_file_content[2]
+        str_now = two_file_content[3]
         # 根据内容构建语法树
         str_pre_tree = ""
         str_now_tree = ""
@@ -128,16 +136,26 @@ def diff_two_ast():
                     a = i.replace(" ", "")
                     diff_buggy += a
                     diff_fix += a
-        print(info[0])
+        print(two_file_content[0])
         try:
             print(diff_buggy)
+            print(len(diff_buggy))
             print(diff_fix)
+            print(len(diff_fix))
+            print(len(diff_fix) / len(diff_buggy))
         except Exception as e:
             print("编码风格不符！")
         # 调用规则匹配方法，传入参数diff_buggy与diff_fix，基于规则的匹配
+        if len(diff_buggy) != 0:
+            # if len(diff_fix) < 0.0172 or len(diff_fix) > 785:   抛出31个Bug，准确率达93.55%
+            if (len(diff_fix) / len(diff_buggy)) < 0.0172 or (len(diff_fix) / len(diff_buggy)) > 785:
+                continue
         buggy_types = pattern_match(diff_buggy, diff_fix, str_pre_tree)
-        repo_name = info[0]
-        commit_url = info[4]
+
+        repo_name = two_file_content[0]
+        commit_url = commit_url_str
+        if len(buggy_types) >= 3:
+            del buggy_types[1: len(buggy_types)]
         general_bug = [repo_name, commit_url, buggy_types]
         general_bugs.append(general_bug)
     return general_bugs

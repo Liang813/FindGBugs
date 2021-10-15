@@ -1,5 +1,6 @@
 # -*-coding:GBK -*-
 def pattern_match(str1, str2, str3):
+
     diff_buggy = str1
     diff_fix = str2
     str_pre_tree = str3

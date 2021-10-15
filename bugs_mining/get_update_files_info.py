@@ -50,69 +50,56 @@ def get_diff_str():
     return results
 
 
-def get_file_content():
+def get_file_content(repo_name_str, fix_commit_str, commit_url_str):
     """
     获取修改前后的文件内容
     :return: nums[]
     """
-    repo_info_list = read_csv()
-    two_version_infos = []
-    for repo_info in repo_info_list:
-        # 存储修改前后两个版本的文件内容
-        now_files_str = ""
-        pre_files_str = ""
-        # 数组存储修改前后两个版本的文件内容
-        two_version_files = []
-        # 分别获取repo库名和commitId
-        repo_name = repo_info[0]
-        repo_name_str = ''.join(repo_name)  # repo名
-        fix_commit = repo_info[1]
-        print(fix_commit)        ### 读到的fix_commit为空
-        fix_commit_str = ''.join(fix_commit)  # fix commitId
-        commit_url = repo_info[2]
-        commit_url_str = ''.join(commit_url)  # fix commit url
+    # 存储修改前后两个版本的文件内容
+    now_files_str = ""
+    pre_files_str = ""
+    # 获取修改文件名
+    cmd1 = "cd .."  # cmd1 = "cd ../"
+    cmd2 = "cd D:\\repo_clone\\" + repo_name_str         # clone的库的存放地址
+    print("fix_commit:")
+    print(fix_commit_str)
+    cmd3 = "git show --pretty="" --name-only " + fix_commit_str  # 查看指定commit的修改文件，面向用户的命令
+    cmd = cmd1 + " && " + cmd2 + " && " + cmd3
+    # 存放修改的文件名的数组
+    update_files = []
+    # 读取文件对象，获取返回的信息内容
+    d = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
+    out = d.stdout.readlines()
+    for line in out:
+        line_str = str(line, encoding="utf-8")
+        if '.py' in line_str and 'test' not in line_str:
+            update_files.append(line_str)
+    # 获取修改文件不为空的Bug信息，可以考虑去掉存储在update_files中，上面直接判断，然后遍历时直接获取文件信息
+    if not update_files:
+        print("没有.py结尾的修改文件！")
+    print("修改的文件名:")
+    print(update_files)
 
-        # 获取修改文件名
-        cmd1 = "cd .."  # cmd1 = "cd ../"
-        cmd2 = "cd D:\\repo_clone\\" + repo_name_str         # clone的库的存放地址
-        print("fix_commit:")
-        print(fix_commit_str)
-        cmd3 = "git show --pretty="" --name-only " + fix_commit_str  # 查看指定commit的修改文件，面向用户的命令
-        cmd = cmd1 + " && " + cmd2 + " && " + cmd3
-        # 存放修改的文件名的数组
-        update_files = []
-        # 读取文件对象，获取返回的信息内容
-        d = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
-        out = d.stdout.readlines()
-        for line in out:
-            line_str = str(line, encoding="utf-8")
-            if '.py' in line_str and 'test' not in line_str:
-                update_files.append(line_str)
-        # 获取修改文件不为空的Bug信息，可以考虑去掉存储在update_files中，上面直接判断，然后遍历时直接获取文件信息
-        if not update_files:
-            continue
-        print("修改的文件名:")
-        print(update_files)
-        # print("=============================")
-
-        # git show 命令获取修改的文件内容
-        for file_name in update_files:
-            cmd4 = "git show " + fix_commit_str+":" + file_name
-            cmd5 = "git show " + fix_commit_str + "~1:" + file_name
-            cmd_nowC = cmd1 + " && " + cmd2 + " && " + cmd4
-            cmd_preC = cmd1 + " && " + cmd2 + " && " + cmd5
-            d_now = subprocess.Popen(cmd_nowC, shell=True, stdout=subprocess.PIPE)
-            out_now = d_now.stdout.readlines()
-            for line_now in out_now:
-                line_str_now = str(line_now, encoding="utf-8")
+    # git show 命令获取修改的文件内容
+    for file_name in update_files:
+        cmd4 = "git show " + fix_commit_str+":" + file_name
+        cmd5 = "git show " + fix_commit_str + "~1:" + file_name
+        cmd_nowC = cmd1 + " && " + cmd2 + " && " + cmd4
+        cmd_preC = cmd1 + " && " + cmd2 + " && " + cmd5
+        d_now = subprocess.Popen(cmd_nowC, shell=True, stdout=subprocess.PIPE)
+        out_now = d_now.stdout.readlines()
+        for line_now in out_now:
+            line_str_now = str(line_now, encoding="utf-8")
+            # 简单的过滤掉#注释
+            if '#' not in line_str_now:
                 now_files_str += line_str_now
-            d_pre = subprocess.Popen(cmd_preC, shell=True, stdout=subprocess.PIPE)
-            out_pre = d_pre.stdout.readlines()
-            for line_pre in out_pre:
-                line_str_pre = str(line_pre, encoding="utf-8")
+        d_pre = subprocess.Popen(cmd_preC, shell=True, stdout=subprocess.PIPE)
+        out_pre = d_pre.stdout.readlines()
+        for line_pre in out_pre:
+            line_str_pre = str(line_pre, encoding="utf-8")
+            if '#' not in line_str_pre:
                 pre_files_str += line_str_pre
-        two_version_files = [repo_name_str, fix_commit_str, pre_files_str, now_files_str, commit_url_str]
-        two_version_infos.append(two_version_files)
+    two_version_files = [repo_name_str, fix_commit_str, pre_files_str, now_files_str, commit_url_str]
 
-    return two_version_infos
+    return two_version_files
 
