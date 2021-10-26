@@ -24,30 +24,27 @@ def read_csv():
     return repo_info_list
 
 
-def get_diff_str():
+def get_diff_str(repo_name_str, fix_commit_str, commit_url_str):
     """
-        使用github提供的diff方法直接获取到修改的字符串
-    :return:全部bug修改的字符串集合
+        使用github提供的git diff方法直接获取到两个commit之间修改的字符串
+    :return: 修改的字符串str
     """
-    results = []
-    repo_info_list = read_csv()
-    for repo_info in repo_info_list:
-        repo_name = repo_info[0]
-        repo_name_str = ''.join(repo_name)  # repo名
-        fix_commit = repo_info[1]
-        fix_commit_str = ''.join(fix_commit)  # fix commitId
-        cmd1 = "cd .."
-        cmd2 = "cd D:\\repo_clone\\" + repo_name_str  # clone的库的存放地址
-        cmd3 = "git diff " + fix_commit_str + " " + fix_commit_str + "~1:"  # git diff命令
-        cmd = cmd1 + " && " + cmd2 + " && " + cmd3
-        d = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
-        out = d.stdout.readlines()
-        result = ""
-        for line in out:
-            line_str = str(line, encoding="utf-8")
-            result = result + line_str
-        results.append(result)
-    return results
+
+    cmd1 = "cd .."
+    cmd2 = "cd D:\\repo_clone\\" + repo_name_str  # clone的库的存放地址
+    cmd3 = "git diff " + fix_commit_str + " " + fix_commit_str + "~1:"  # git diff命令
+    cmd = cmd1 + " && " + cmd2 + " && " + cmd3
+    d = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
+    out = d.stdout.readlines()
+    diff_str = ""
+    # 对diff的结果进行预处理，去除没有修改的语句，只获取+或-后面的语句
+    for line in out:
+        line_str = str(line, encoding="utf-8")
+        if line_str.startswith("-"):
+            diff_str = diff_str + line_str
+        if line_str.startswith("+"):
+            diff_str = diff_str + line_str
+    return diff_str
 
 
 def get_file_content(repo_name_str, fix_commit_str, commit_url_str):

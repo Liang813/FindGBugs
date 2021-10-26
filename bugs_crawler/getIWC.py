@@ -111,8 +111,8 @@ if __name__ == '__main__':
         data = pd.DataFrame(relations_info)
         try:
             if flag == 0:
-                csv_headers = ['issue_url', 'commit_url']
-                data.to_csv(fileName, header=csv_headers, index=False,
+                # csv_headers = ['issue_url', 'commit_url']
+                data.to_csv(fileName, header=False, index=False,
                             mode='a+', encoding='utf-8-sig')
 
             else:

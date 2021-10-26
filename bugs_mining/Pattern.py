@@ -32,6 +32,7 @@ def pattern_match(str1, str2, str3):
     return result
 
 
+# 需要修改
 def api_pattern(str1, str2):
     """
         API misuse类的搜索规则
@@ -148,6 +149,28 @@ def shp_pattern(str1, str2):
     str1_squeeze = str1.count("attr='squeeze'")
     str2_squeeze = str2.count("attr='squeeze'")
     if str1_squeeze != str2_squeeze:
+        return 'shape mismatch'
+
+    # 新增规则
+    str1_matmul = str1.count("attr='matmul'")
+    str2_matmul = str2.count("attr='matmul'")
+    if str1_matmul != str2_matmul:
+        return 'shape mismatch'
+    str1_multiply = str1.count("attr='multiply'")
+    str2_multiply = str2.count("attr='multiply'")
+    if str1_multiply != str2_multiply:
+        return 'shape mismatch'
+    str1_tensordot = str1.count("attr='tensordot'")
+    str2_tensordot = str2.count("attr='tensordot'")
+    if str1_tensordot != str2_tensordot:
+        return 'shape mismatch'
+    str1_set_shape = str1.count("attr='set_shape'")
+    str2_set_shape = str2.count("attr='set_shape'")
+    if str1_set_shape != str2_set_shape:
+        return 'shape mismatch'
+    str1_reshape = str1.count("attr='reshape'")
+    str2_reshape = str2.count("attr='reshape'")
+    if str1_reshape != str2_reshape:
         return 'shape mismatch'
 
 
