@@ -55,7 +55,7 @@ def get_relations(repo_issues, repo_name, repo_owner):
                 relation_tup = tuple()
                 commit_info = repo.get_commit(commit_id)
                 commit_message = commit_info.commit.message
-                if '#' or 'issue' in commit_message:
+                if '#' or 'issue' in commit_message and 'Merge' not in commit_message:
                     if str(issue_number) in commit_message:
                         # commit_number = re.findall(r"(?<=\#)\d+", commit_message)
                         commit_url = commit_info.html_url
@@ -66,13 +66,13 @@ def get_relations(repo_issues, repo_name, repo_owner):
                 for cid in commit_ids:
                     commit_info = repo.get_commit(commit_id)
                     commit_message = commit_info.commit.message
-                    if '#' or 'issue' in commit_message:
+                    if '#' or 'issue' in commit_message and 'Merge' not in commit_message:
                         if str(issue_number) in commit_message:
                             # commit_number = re.findall(r"(?<=\#)\d+", commit_message)
                             commit_url = commit_info.html_url
                             relation_tup = (issue_html_url, commit_url)
                             relations.append(relation_tup)
-                    break
+                            break
             else:
                 continue
 
@@ -81,16 +81,19 @@ def get_relations(repo_issues, repo_name, repo_owner):
 
 
 if __name__ == '__main__':
-    print(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()))
     keywords = input('Enter your keywords:')
     repositories = get_repositories(keywords)
-    flag = 0
+    print(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()))
+    # flag = 0
     for repo in repositories:
         if repo.fork:
             continue
-
+        if repo.language != 'Python':
+            continue
         repo_name = repo.name
         repo_name.encode('utf-8', 'ignore')
+        if repo_name == 'tensorflow' or repo_name == 'models' or repo_name == 'keras' or repo_name == 'Theano':
+            continue
         print(repo_name)
         repo_owner = repo.owner.login
         repo_owner.encode('utf-8', 'ignore')
@@ -110,15 +113,14 @@ if __name__ == '__main__':
         fileName = 'relations_of_' + keywords + '.csv'
         data = pd.DataFrame(relations_info)
         try:
-            if flag == 0:
-                # csv_headers = ['issue_url', 'commit_url']
-                data.to_csv(fileName, header=False, index=False,
-                            mode='a+', encoding='utf-8-sig')
-
-            else:
-                data.to_csv(fileName, header=False, index=False,
-                            mode='a+', encoding='utf-8-sig')
-            flag += 1
+            # if flag == 0:
+            #    csv_headers = ['issue_url', 'commit_url']
+            data.to_csv(fileName, header=False, index=False,
+                        mode='a+', encoding='utf-8-sig')
+            # else:
+            #     data.to_csv(fileName, header=False, index=False,
+            #                 mode='a+', encoding='utf-8-sig')
+            # flag += 1
         except UnicodeEncodeError:
             print('Encode error drop the data')
     print(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()))
