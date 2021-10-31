@@ -1,10 +1,16 @@
 # -*-coding:GBK -*-
-def pattern_match(str1, str2, str3):
+import ast
 
+from bugs_mining.CallCollector import CallCollector
+
+
+def pattern_match(str1, str2, str3, str_pre, str_now):
     diff_buggy = str1
     diff_fix = str2
     str_pre_tree = str3
-    is_api = api_pattern(diff_buggy, diff_fix)
+    str_pre = str_pre
+    str_now = str_now
+    is_api = api_pattern(str_pre, str_now)
     is_ips = ips_pattern(diff_buggy, diff_fix, str_pre_tree)
     is_tp = tp_pattern(diff_buggy, diff_fix)
     is_zd = zd_pattern(diff_buggy, diff_fix)
@@ -26,31 +32,57 @@ def pattern_match(str1, str2, str3):
         result.append(is_judge)
     if is_var is not None:
         result.append(is_var)
-    # if len(result) == 0:
-    #     if is_api is not None:
-    #         result.append(is_api)
     return result
 
 
-# 需要修改
+"""
+    API misuse类的搜索规则，通过判断buggy和fix两个版本中的api与其对应的参数的变化判断是否是General Bug
+"""
+
+
+def find_general_api(s):
+    tree = ast.parse(s)
+    # print(ast.dump(tree))
+    cc = CallCollector()
+    cc.visit(tree)
+    # print(cc.api_dict)
+    return cc.api_dict
+
+
 def api_pattern(str1, str2):
-    """
-        API misuse类的搜索规则
-    """
-    buggy_count = str1.count('keyword(')
-    fix_count = str2.count('keyword(')
-
-    """
-        Important!!!
-    """
-
-    if buggy_count != fix_count:
-        return 'API misuse'
-    if 'keyword(' in str1 and 'keyword(' in str2:
-        location_buggy = str1.find('keyword(')
-        location_fix = str2.find('keyword(')
-        if location_buggy != location_fix:
-            return 'API misuse'
+    buggy_api_dict = find_general_api(str1)
+    fix_api_dict = find_general_api(str2)
+    print(buggy_api_dict)
+    print(fix_api_dict)
+    # 判断两个字典是否相同
+    minus_api = buggy_api_dict.keys() - fix_api_dict.keys()
+    add_api = fix_api_dict.keys() - buggy_api_dict.keys()
+    same_api = buggy_api_dict.keys() & fix_api_dict.keys()
+    message = ""
+    if len(minus_api) != 0:
+        minus_api_str = ""
+        for i in minus_api:
+            minus_api_str += i
+            minus_api_str += ", "
+        message += "delete " + minus_api_str + "方法! "
+    if len(add_api) != 0:
+        add_api_str = ""
+        for i in add_api:
+            add_api_str += i
+            add_api_str += ", "
+        message += "add " + add_api_str + "方法! "
+    for key in same_api:
+        buggy_len = len(buggy_api_dict[key])
+        fix_len = len(fix_api_dict[key])
+        if buggy_api_dict[key] != fix_api_dict[key]:
+            if buggy_len > fix_len:
+                message += key + " delete 参数!"
+            elif buggy_len < fix_len:
+                message += key + " add 参数!"
+            else:
+                message += key + " change 参数!"
+    if message is not None:
+        return 'API misuse ' + message
 
 
 """
@@ -93,7 +125,7 @@ def ips_pattern(str1, str2, str3):
 
 
 def tp_pattern(str1, str2):
-    if "g='dtyp" not in str1 and "g='dtyp" in str2:    # "arg='dtype'"
+    if "g='dtyp" not in str1 and "g='dtyp" in str2:  # "arg='dtype'"
         return 'type mismatch'
     # if "id='int'" not in str1 and "id='int'" in str2:
     #     return 'type mismatch'
@@ -190,7 +222,11 @@ def judge_pattern(str1, str2):
 
 
 def var_pattern(str1, str2):
-    if ("attr='initialize_all_variables'" not in str1 and "attr='initialize_all_variables'" in str2) or ('initialize_all_variables' not in str1 and 'initialize_all_variables' in str2):
+    if ("attr='initialize_all_variables'" not in str1 and "attr='initialize_all_variables'" in str2) or (
+            'initialize_all_variables' not in str1 and 'initialize_all_variables' in str2):
         return 'variable initialization'
-    if (('group' and "attr='initialize_local_variables'" not in str1) and ('group' and "attr='initialize_local_variables'" in str2)) or (('group' and "attr='initialize_local_variables'" not in str2) and ('group' and "attr='initialize_local_variables'" in str1)):
+    if (('group' and "attr='initialize_local_variables'" not in str1) and (
+            'group' and "attr='initialize_local_variables'" in str2)) or (
+            ('group' and "attr='initialize_local_variables'" not in str2) and (
+            'group' and "attr='initialize_local_variables'" in str1)):
         return 'variable initialization'

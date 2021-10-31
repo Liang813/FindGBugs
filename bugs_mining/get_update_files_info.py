@@ -32,18 +32,23 @@ def get_diff_str(repo_name_str, fix_commit_str, commit_url_str):
 
     cmd1 = "cd .."
     cmd2 = "cd D:\\repo_clone\\" + repo_name_str  # clone的库的存放地址
-    cmd3 = "git diff " + fix_commit_str + " " + fix_commit_str + "~1:"  # git diff命令
+    # cmd3 = "git diff " + fix_commit_str + " " + fix_commit_str + "~1:"  # git diff命令
+    cmd3 = "git diff " + fix_commit_str + "~1 " + fix_commit_str  # git diff命令
     cmd = cmd1 + " && " + cmd2 + " && " + cmd3
     d = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
     out = d.stdout.readlines()
-    diff_str = ""
-    # 对diff的结果进行预处理，去除没有修改的语句，只获取+或-后面的语句
+    diff_str = []
+    diff_str_buggy = ""
+    diff_str_fix = ""
+    # 对diff的结果进行预处理，去除没有修改的语句，获取buggy版本与fix版本修改的信息
     for line in out:
         line_str = str(line, encoding="utf-8")
         if line_str.startswith("-"):
-            diff_str = diff_str + line_str
+            diff_str_buggy = diff_str_buggy + line_str
         if line_str.startswith("+"):
-            diff_str = diff_str + line_str
+            diff_str_fix = diff_str_fix + line_str
+    diff_str.append(diff_str_buggy)
+    diff_str.append(diff_str_fix)
     return diff_str
 
 

@@ -41,27 +41,29 @@ def get_node_number(node_list):
 
 if __name__ == '__main__':
     # fix前
-    str1 = "all_toks = all_toks + (attr_value if isinstance(attr_value, (list, tuple)) else [attr_value])"
+    str1 = "d.setdefault(10, []).append(5), p.set(1,2)"
     # fix后
     str2 = "all_toks = all_toks + (list(attr_value) if isinstance(attr_value, (list, tuple)) else [attr_value])"
     # 显示原树
+    print(ast.parse(str1))
     str1_tree = ast.dump(ast.parse(str1))
-    str2_tree = ast.dump(ast.parse(str2))
-    # ast生成的普通的树的形式
     print(str1_tree)
-    print(str2_tree)
-    # 分别调用广度优先搜索
-    node_list_pre = ast_walk(str1_tree)
-    node_list_now = ast_walk(str2_tree)
-    # 获取各个节点数量
-    node_tuple_pre = get_node_number(node_list_pre)
-    print(node_tuple_pre)
-    node_tuple_now = get_node_number(node_list_now)
-    print(node_tuple_now)
-    # 计算相差的节点数量
-    node_tuple_now.subtract(node_tuple_pre)
-    print("相差的节点数：")
-    print(node_tuple_now)
+    # str2_tree = ast.dump(ast.parse(str2))
+    # # ast生成的普通的树的形式
+    # print(str1_tree)
+    # print(str2_tree)
+    # # 分别调用广度优先搜索
+    # node_list_pre = ast_walk(str1_tree)
+    # node_list_now = ast_walk(str2_tree)
+    # # 获取各个节点数量
+    # node_tuple_pre = get_node_number(node_list_pre)
+    # print(node_tuple_pre)
+    # node_tuple_now = get_node_number(node_list_now)
+    # print(node_tuple_now)
+    # # 计算相差的节点数量
+    # node_tuple_now.subtract(node_tuple_pre)
+    # print("相差的节点数：")
+    # print(node_tuple_now)
 
     # 使用astpretty工具，更好的显示AST结构
     # astpretty.pprint(ast.parse(str1))
