@@ -81,7 +81,7 @@ def api_pattern(str1, str2):
                 message += key + " add 参数!"
             else:
                 message += key + " change 参数!"
-    if message is not None:
+    if len(message) > 0:
         return 'API misuse ' + message
 
 
@@ -147,7 +147,8 @@ def tp_pattern(str1, str2):
         return 'type mismatch'
     if "Call(func=Name(id='list'" not in str1 and "Call(func=Name(id='list'" in str2:
         return 'type mismatch'
-    if "attr='eval', ctx=Load()), args=[], keywords=[])" not in str1 and "attr='eval', ctx=Load()), args=[], keywords=[])" in str2:
+    if "attr='eval', ctx=Load()), args=[], keywords=[])" not in str1 and "attr='eval', ctx=Load()), args=[], " \
+                                                                         "keywords=[])" in str2:
         return 'type mismatch'
 
 

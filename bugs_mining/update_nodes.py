@@ -3,6 +3,8 @@ import ast
 from collections import Counter
 from difflib import unified_diff
 
+import pandas as pd
+
 from bugs_mining.CallCollector import CallCollector
 from bugs_mining.Pattern import pattern_match
 from bugs_mining.get_update_files_info import read_csv, get_file_content
@@ -139,36 +141,52 @@ def diff_two_ast():
                     diff_buggy += a
                     diff_fix += a
         print(two_file_content[0])
-        try:
-            print(diff_buggy)
-            print(len(diff_buggy))
-            print(diff_fix)
-            print(len(diff_fix))
-            print(len(diff_fix) / len(diff_buggy))
-        except Exception as e:
-            print("编码风格不符！")
+        # try:
+        #     print(diff_buggy)
+        #     print(len(diff_buggy))
+        #     print(diff_fix)
+        #     print(len(diff_fix))
+        #     print(len(diff_fix) / len(diff_buggy))
+        # except Exception as e:
+        #     print("编码风格不符！")
         # 调用规则匹配方法，传入参数diff_buggy与diff_fix，基于规则的匹配
         if len(diff_buggy) != 0:
             # if len(diff_fix) < 0.0172 or len(diff_fix) > 785:   抛出31个Bug，准确率达93.55%
             if (len(diff_fix) / len(diff_buggy)) < 0.0172 or (len(diff_fix) / len(diff_buggy)) > 785:
                 continue
-        buggy_types = pattern_match(diff_buggy, diff_fix, str_pre_tree, str_pre, str_now)
-
-        repo_name = two_file_content[0]
-        commit_url = commit_url_str
-        if len(buggy_types) >= 3:
-            del buggy_types[1: len(buggy_types)]
-        general_bug = [repo_name, commit_url, buggy_types]
-        general_bugs.append(general_bug)
+        try:
+            buggy_types = pattern_match(diff_buggy, diff_fix, str_pre_tree, str_pre, str_now)
+            repo_name = two_file_content[0]
+            commit_url = commit_url_str
+            if len(buggy_types) >= 3:
+                del buggy_types[1: len(buggy_types)]
+            general_bug = [repo_name, commit_url, buggy_types]
+            general_bugs.append(general_bug)
+        except Exception as e:
+            print("规则匹配错误！")
+            continue
     return general_bugs
 
 
 if __name__ == '__main__':
-    # node_numbers = get_two_ast()
     general_bugs = diff_two_ast()
-    # print(general_bugs)
     for general_bug in general_bugs:
         if len(general_bug[2]) != 0:
             print(general_bug)
+            # 将API misuse类的Bug输出到csv文件中
+            # bug_type = general_bug[2]
+            # if 'API' in bug_type[0]:
+            #     # 将其输出到csv中
+            #     fileName = 'API_misuse' + '.csv'
+            #     api_info = [general_bug[1], bug_type[0]]
+            #     data = [api_info]
+            #     df = pd.DataFrame(data)
+            #     try:
+            #         df.to_csv(fileName, header=False, index=False,
+            #                     mode='a+', encoding='utf-8-sig')
+            #
+            #     except UnicodeEncodeError:
+            #         print('Encode error drop the data')
+
     print("Bug数量为:")
     print(len(general_bugs))
