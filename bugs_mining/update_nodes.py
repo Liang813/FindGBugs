@@ -174,19 +174,19 @@ if __name__ == '__main__':
         if len(general_bug[2]) != 0:
             print(general_bug)
             # 将API misuse类的Bug输出到csv文件中
-            # bug_type = general_bug[2]
-            # if 'API' in bug_type[0]:
-            #     # 将其输出到csv中
-            #     fileName = 'API_misuse' + '.csv'
-            #     api_info = [general_bug[1], bug_type[0]]
-            #     data = [api_info]
-            #     df = pd.DataFrame(data)
-            #     try:
-            #         df.to_csv(fileName, header=False, index=False,
-            #                     mode='a+', encoding='utf-8-sig')
-            #
-            #     except UnicodeEncodeError:
-            #         print('Encode error drop the data')
+            bug_type = general_bug[2]
+            if 'API' in bug_type[0]:
+                # 将其输出到csv中
+                fileName = 'API_misuse' + '.csv'
+                api_info = [general_bug[1], bug_type[0]]
+                data = [api_info]
+                df = pd.DataFrame(data)
+                try:
+                    df.to_csv(fileName, header=False, index=False,
+                                mode='a+', encoding='utf-8-sig')
+
+                except UnicodeEncodeError:
+                    print('Encode error drop the data')
 
     print("Bug数量为:")
     print(len(general_bugs))
