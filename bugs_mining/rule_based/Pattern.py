@@ -1,7 +1,7 @@
 # -*-coding:GBK -*-
 import ast
 
-from bugs_mining.CallCollector import CallCollector
+from bugs_mining.rule_based.CallCollector import CallCollector
 
 
 def pattern_match(str1, str2, str3, str_pre, str_now):

@@ -5,9 +5,8 @@ from difflib import unified_diff
 
 import pandas as pd
 
-from bugs_mining.CallCollector import CallCollector
-from bugs_mining.Pattern import pattern_match
-from bugs_mining.get_update_files_info import read_csv, get_file_content
+from bugs_mining.rule_based.Pattern import pattern_match
+from bugs_mining.rule_based.get_update_files_info import read_csv, get_file_content
 
 
 class ASTVisitor(ast.NodeVisitor):
